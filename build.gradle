@@ -1,0 +1,18 @@
+// Root project. The actual mod lives in the :mod subproject.
+// This file intentionally stays minimal; all mod build logic is in mod/build.gradle.
+
+plugins {
+    id 'base'
+}
+
+tasks.register('printVersions') {
+    group = 'help'
+    description = 'Prints the pinned Minecraft / Fabric / toolchain versions.'
+    doLast {
+        println "Minecraft:     ${project.property('minecraft_version')}"
+        println "Fabric Loader:  ${project.property('loader_version')}"
+        println "Fabric API:     ${project.property('fabric_version')}"
+        println "Loom:           ${project.property('loom_version')}"
+        println "Java:           ${project.property('java_version')}"
+    }
+}

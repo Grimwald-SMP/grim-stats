@@ -1,0 +1,160 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'java'
+}
+
+version = project.property('mod_version')
+group = project.property('maven_group')
+base { archivesName = project.property('archives_base_name') }
+
+def javaVersion = project.property('java_version') as int
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.property('minecraft_version')}"
+    // Official Mojang mappings -- Yarn is discontinued after 1.21.11 and 26.1 requires Mojang.
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.property('loader_version')}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.property('fabric_version')}"
+
+    // --- Testing ---
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Gson is provided transitively by Minecraft at runtime; declare for compile-time clarity.
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// --------------------------------------------------------------------------
+// Bundle the dashboard
+//
+// The dashboard (Vite SPA) is built with npm and its static output is copied
+// into the mod resources so the embedded HTTP server can serve it from the jar.
+// --------------------------------------------------------------------------
+def dashboardDir = rootProject.file('dashboard')
+def dashboardDist = new File(dashboardDir, 'dist')
+def skipDashboard = project.hasProperty('skipDashboard')
+
+def npmCmd = org.gradle.internal.os.OperatingSystem.current().isWindows() ? 'npm.cmd' : 'npm'
+
+tasks.register('installDashboard', Exec) {
+    group = 'dashboard'
+    description = 'Installs dashboard npm dependencies.'
+    workingDir = dashboardDir
+    commandLine npmCmd, 'install'
+    // Only re-run when the lockfile / manifest changes.
+    inputs.files(new File(dashboardDir, 'package.json'))
+    outputs.dir(new File(dashboardDir, 'node_modules')).optional()
+    onlyIf { dashboardDir.exists() }
+}
+
+tasks.register('buildDashboard', Exec) {
+    group = 'dashboard'
+    description = 'Builds the dashboard static SPA into dashboard/dist.'
+    dependsOn 'installDashboard'
+    workingDir = dashboardDir
+    commandLine npmCmd, 'run', 'build'
+    inputs.dir(new File(dashboardDir, 'src'))
+    inputs.files(new File(dashboardDir, 'package.json'), new File(dashboardDir, 'vite.config.ts'))
+    outputs.dir(dashboardDist)
+    onlyIf { dashboardDir.exists() }
+}
+
+processResources {
+    def props = [
+        version       : project.version,
+        minecraft     : project.property('minecraft_version'),
+        loader        : project.property('loader_version'),
+        java          : project.property('java_version')
+    ]
+    inputs.properties(props)
+    filesMatching('fabric.mod.json') {
+        expand props
+    }
+
+    // Bundle the dashboard into the jar at assets/grimstats/web. We use processResources.from
+    // (rather than copying into the source tree) so the built SPA never pollutes src/ and does not
+    // collide with sourcesJar. The dashboard is (re)built first unless -PskipDashboard is set or
+    // the dashboard project is absent. If a prebuilt dist already exists it is bundled regardless,
+    // so `-PskipDashboard` still produces a complete jar when dist is present.
+    if (dashboardDir.exists() && !skipDashboard) {
+        dependsOn 'buildDashboard'
+        from(dashboardDist) { into 'assets/grimstats/web' }
+    } else if (dashboardDist.exists()) {
+        from(dashboardDist) { into 'assets/grimstats/web' }
+    }
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
+    toolchain { languageVersion = JavaLanguageVersion.of(javaVersion) }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+    it.options.release = javaVersion
+}
+
+jar {
+    // The LICENSE lives at the repo root, not in mod/.
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${project.property('archives_base_name')}" }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Test server: build (incl. dashboard) then launch a dev server with the newest
+// build against a throwaway, fast-generating world. Loom provides `runServer`;
+// `runTestServer` rebuilds first and `prepareTestServer` writes the eula + a quick
+// flat-world server.properties so the run is fully unattended.
+// --------------------------------------------------------------------------
+def testServerRunDir = file('run/server')
+
+loom {
+    runs {
+        server {
+            runDir = 'run/server'
+        }
+    }
+}
+
+tasks.register('prepareTestServer') {
+    group = 'fabric'
+    description = 'Writes eula.txt and a fast-gen server.properties for the test server.'
+    doLast {
+        testServerRunDir.mkdirs()
+        // By running this you accept the Minecraft EULA (https://aka.ms/MinecraftEULA) for the
+        // local test server. This only affects this throwaway dev world.
+        new File(testServerRunDir, 'eula.txt').text = "eula=true\n"
+        new File(testServerRunDir, 'server.properties').text = [
+            'level-type=minecraft\\:flat',
+            'generate-structures=false',
+            'spawn-protection=0',
+            'online-mode=false',
+            'view-distance=4',
+            'max-players=20',
+            'motd=GrimStats Test Server',
+            'sync-chunk-writes=false',
+        ].join('\n') + '\n'
+    }
+}
+
+tasks.named('runServer') {
+    dependsOn 'prepareTestServer'
+}
+
+tasks.register('runTestServer') {
+    group = 'fabric'
+    description = 'Rebuilds the mod (and dashboard if present) then runs a test server.'
+    dependsOn 'build', 'prepareTestServer'
+    finalizedBy 'runServer'
+}

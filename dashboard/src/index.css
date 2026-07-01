@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Use Geist (the grimwald.xyz typeface) as the default sans/mono. Bundled via @fontsource so the
+   build stays fully self-contained and works offline from the jar. */
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* daisyUI v5 plugin. The bundled theme set is intentionally small and clean; admins can
+   change the active theme at runtime via the admin settings (persisted to the mod config). */
+@plugin "daisyui" {
+  themes: grimwald --default, grimstats, light, dark --prefersdark, nord, business, dracula, emerald, corporate;
+}
+
+/* "grimwald" theme: a warm, earthy dark palette modeled on grimwald.xyz. Near-black backgrounds,
+   warm brown surfaces (Minecraft natural tones), and a signature vivid orange primary with a teal
+   accent. */
+@plugin "daisyui/theme" {
+  name: "grimwald";
+  default: true;
+  color-scheme: dark;
+  --color-base-100: #121110;
+  --color-base-200: #1a1715;
+  --color-base-300: #2e2721;
+  --color-base-content: #ece6df;
+  --color-primary: #ff7a00;
+  --color-primary-content: #1a0c00;
+  --color-secondary: #b87749;
+  --color-secondary-content: #1a1009;
+  --color-accent: #0099a8;
+  --color-accent-content: #00171a;
+  --color-neutral: #2e2721;
+  --color-neutral-content: #ece6df;
+  --color-info: #0099a8;
+  --color-success: #5fae5a;
+  --color-warning: #e0a000;
+  --color-error: #e5484d;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
+}
+
+/* Custom default theme: minimal, calm, good contrast, works in light terminals and dark rooms. */
+@plugin "daisyui/theme" {
+  name: "grimstats";
+  color-scheme: dark;
+  --color-base-100: oklch(21% 0.02 260);
+  --color-base-200: oklch(18% 0.02 260);
+  --color-base-300: oklch(15% 0.02 260);
+  --color-base-content: oklch(92% 0.01 260);
+  --color-primary: oklch(68% 0.15 250);
+  --color-primary-content: oklch(15% 0.02 250);
+  --color-secondary: oklch(70% 0.12 190);
+  --color-secondary-content: oklch(15% 0.02 190);
+  --color-accent: oklch(74% 0.15 140);
+  --color-accent-content: oklch(15% 0.02 140);
+  --color-neutral: oklch(26% 0.02 260);
+  --color-neutral-content: oklch(92% 0.01 260);
+  --color-info: oklch(70% 0.12 230);
+  --color-success: oklch(72% 0.15 150);
+  --color-warning: oklch(80% 0.14 80);
+  --color-error: oklch(66% 0.18 25);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
+}
+
+/* Respect users who prefer reduced motion; keep transitions subtle everywhere else. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Tabular figures for stat numbers so columns line up cleanly. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

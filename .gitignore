@@ -1,0 +1,24 @@
+# Gradle / Java
+.gradle/
+build/
+mod/build/
+**/run/
+*.class
+
+# Node / dashboard
+node_modules/
+dashboard/dist/
+dashboard/node_modules/
+dashboard/test-results/
+dashboard/playwright-report/
+.env.local
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Tooling (user-specific)
+.claude/settings.local.json
