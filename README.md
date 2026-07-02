@@ -1,6 +1,6 @@
 # GrimStats
 
-[![CI](https://github.com/grimstats/grim-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/grimstats/grim-stats/actions/workflows/ci.yml)
+[![CI](https://github.com/Grimwald-SMP/grim-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/Grimwald-SMP/grim-stats/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Minecraft 1.21.11](https://img.shields.io/badge/minecraft-1.21.11-brightgreen)
 ![Fabric](https://img.shields.io/badge/loader-fabric-dbb69b)
@@ -31,7 +31,7 @@ and served by its own embedded HTTP server.
 
 ## Installation (server admins)
 
-1. Download `grimstats-<version>.jar` from [Releases](https://github.com/grimstats/grim-stats/releases).
+1. Download `grimstats-<version>.jar` from [Releases](https://github.com/Grimwald-SMP/grim-stats/releases).
 2. Drop it into your Fabric 1.21.11 server's `mods/` folder alongside
    [Fabric API](https://modrinth.com/mod/fabric-api). Java 21+ is required.
 3. Start the server. The dashboard listens on all interfaces on port `8765`:

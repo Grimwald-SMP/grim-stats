@@ -8,9 +8,9 @@
     "GrimStats contributors"
   ],
   "contact": {
-    "homepage": "https://github.com/grimstats/grim-stats",
-    "sources": "https://github.com/grimstats/grim-stats",
-    "issues": "https://github.com/grimstats/grim-stats/issues"
+    "homepage": "https://github.com/Grimwald-SMP/grim-stats",
+    "sources": "https://github.com/Grimwald-SMP/grim-stats",
+    "issues": "https://github.com/Grimwald-SMP/grim-stats/issues"
   },
   "license": "MIT",
   "icon": "assets/grimstats/icon.png",

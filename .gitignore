@@ -2,6 +2,7 @@
 .gradle/
 build/
 mod/build/
+mod/bin/
 **/run/
 *.class
 
