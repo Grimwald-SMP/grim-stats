@@ -27,6 +27,7 @@ jobs:
             echo "Bump the version first (scripts/bump-version) so the jar is named correctly." >&2
             exit 1
           fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -44,8 +45,18 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build mod (includes dashboard + tests)
+      - name: Build server jar (includes dashboard + tests)
         run: chmod +x gradlew && ./gradlew build --console=plain
+
+      - name: Verify the server jar was produced
+        run: |
+          jar="mod/build/libs/grimstats-${VERSION}.jar"
+          if [ ! -f "$jar" ]; then
+            echo "Expected server jar not found: $jar" >&2
+            ls -l mod/build/libs >&2 || true
+            exit 1
+          fi
+          echo "Server jar: $jar ($(du -h "$jar" | cut -f1))"
 
       - name: Extract changelog section for this version
         run: |
@@ -65,7 +76,9 @@ jobs:
         with:
           name: GrimStats ${{ github.ref_name }}
           body_path: release-notes.md
+          # Attach only the runnable server mod jar (drop into a Fabric server's mods/ folder).
+          # The -sources.jar is intentionally excluded.
           files: |
-            mod/build/libs/grimstats-*.jar
+            mod/build/libs/grimstats-${{ env.VERSION }}.jar
           fail_on_unmatched_files: true
           generate_release_notes: false
