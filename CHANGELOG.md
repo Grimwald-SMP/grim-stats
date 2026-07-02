@@ -5,6 +5,13 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.7.0 - 2026-07-02
+### Changed
+- Read-only API endpoints are now always reachable without a token, so external tools and other mods
+  can pull stats without an API key. Admin and write endpoints still require authentication, and
+  hidden stat types/objectives are still filtered for anonymous callers. `display.publicDashboard`
+  no longer gates the API; it now only controls whether link-preview cards include player data.
+
 ## 0.6.2 - 2026-07-01
 ## 0.6.1 - 2026-07-01
 ## 0.6.0 - 2026-07-01
