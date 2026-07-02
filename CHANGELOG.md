@@ -5,6 +5,7 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.6.2 - 2026-07-01
 ## 0.6.1 - 2026-07-01
 ## 0.6.0 - 2026-07-01
 ### Security
