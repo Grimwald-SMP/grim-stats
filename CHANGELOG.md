@@ -5,6 +5,7 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.6.1 - 2026-07-01
 ## 0.6.0 - 2026-07-01
 ### Security
 - Request bodies are read through a hard size cap (1 MiB for API/admin endpoints, 32 MiB for season
