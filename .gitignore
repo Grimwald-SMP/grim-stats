@@ -20,5 +20,5 @@ dashboard/playwright-report/
 .DS_Store
 Thumbs.db
 
-# Tooling (user-specific)
+# Tooling
 .claude/settings.local.json
